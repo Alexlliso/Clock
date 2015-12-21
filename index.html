@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="canvas" width="300" height="300" style="background-color:#333"></canvas>
+
+<script>
+    //creacio del quadre negre i el cercle blanc
+    var canvas = document.getElementById("canvas");  //Crea un objecte canvas
+    var ctx = canvas.getContext("2d"); //Predefineix el format a 2d
+    var radius = canvas.height / 2; //Calcula l'alçada del canvas i el divideix per saber on esta el centre
+    ctx.translate(radius, radius);  //Remapeja la posicio (0,0) al centre del canvas
+    radius = radius * 0.90;  //Redueix la mida del rellotge al 90% del canvas
+    drawClock();
+
+    //Crea una funcio per dibuixar el rellotge
+    function drawClock() {
+        ctx.arc(0, 0, radius, 0 , 2*Math.PI);
+        ctx.fillStyle = "white";
+        ctx.fill();
+    }
+
+
+    //Crea una funcio per fer la cara, els numeros i el temps del rellotge.
+    function drawFace(ctx, radius) {
+        var grad;
+
+        //Dibuixa el cercle blanc
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, 2*Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
+
+        //Crea 3 colors, corresponenets al de fora, dins i bordejats.
+        grad.addColorStop(0, '#333');
+        grad.addColorStop(0.5, 'white');
+        grad.addColorStop(1, '#333');
+
+        //Defineix el grau del objecte dibuixat.
+        ctx.strokeStyle = grad;
+
+        //Defineix l'amplada de la linea de l'objecte dibuixat.
+        ctx.lineWidth = radius*0.1;
+
+        //Dibuixa el cercle.
+        ctx.stroke();
+
+        //Dibuixa el centre del rellotge.
+        ctx.beginPath();
+        ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+    }
+
+    //Afegir numeracio
+    function drawNumbers(ctx, radius) {
+        var ang;
+        var num;
+        ctx.font = radius*0.15 + "px arial"; //Estableix el tamany de la front al 15% del radi.
+
+        //Alinea el text al mitg i al centre del punt d'impresió.
+        ctx.textBaseline="middle";
+        ctx.textAlign="center";
+
+        //Calcula la posició de la impresió del rellotge.
+        for(num= 1; num < 13; num++){
+            ang = num * Math.PI / 6;
+            ctx.rotate(ang);
+            ctx.translate(0, -radius*0.85);
+            ctx.rotate(-ang);
+            ctx.fillText(num.toString(), 0, 0);
+            ctx.rotate(ang);
+            ctx.translate(0, radius*0.85);
+            ctx.rotate(-ang);
+        }
+    }
+
+
+    //Afegir manetes
+
+    //Usa Date per conseguir l'hora, els minuts i els segons.
+    function drawTime(ctx, radius){
+        var now = new Date();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+
+//Calcula l'angle de l'hora, minuts i segons.
+        //hora
+        hour=hour%12;
+        hour=(hour*Math.PI/6)+(minute*Math.PI/(6*60))+(second*Math.PI/(360*60));
+        drawHand(ctx, hour, radius*0.5, radius*0.07);
+        //minuts
+        minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+        drawHand(ctx, minute, radius*0.8, radius*0.07);
+        // segons
+        second=(second*Math.PI/30);
+        drawHand(ctx, second, radius*0.9, radius*0.02);
+    }
+
+    function drawHand(ctx, pos, length, width) {
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.moveTo(0,0);
+        ctx.rotate(pos);
+        ctx.lineTo(0, -length);
+        ctx.stroke();
+        ctx.rotate(-pos);
+    }
+
+
+</script>
+
+</body>
+</html>
